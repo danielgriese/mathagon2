@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mathagon 2</string>
+    <string name="title_activity_main">Mathagon 2</string>
+    <string name="package_name">com.belgogames.mathagon2</string>
+    <string name="custom_url_scheme">com.belgogames.mathagon2</string>
+</resources>
