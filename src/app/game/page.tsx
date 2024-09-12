@@ -2,17 +2,22 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { GetGameResponse } from "../api/game/route";
+import { GetGameRequest, GetGameResponse } from "../api/game/route";
+import { useMe } from "../components/UserProvider";
+import { fetchAuthed } from "@/utils/fetchAuthed";
 
 export default function GamesPage() {
   const params = useSearchParams();
   const gameId = params.get("id");
 
+  const { me } = useMe();
+
   const query = useQuery({
     queryKey: ["game", gameId],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_URL}/api/game?id=${gameId}`).then(
-        (res) => res.json() as Promise<GetGameResponse>
+      fetchAuthed<GetGameRequest, GetGameResponse>(
+        `/api/game?id=${gameId}`,
+        me.token
       ),
   });
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export type GetGameRequest = unknown;
+export type GetGameRequest = undefined;
 export type GetGameResponse = { game: { id: string } };
 
 export const GET = async (req: NextRequest) => {

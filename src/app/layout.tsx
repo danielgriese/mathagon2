@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "./components/QueryProvider";
 import { Suspense } from "react";
+import { UserProvider } from "./components/UserProvider";
 // import localFont from "next/font/local";
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
@@ -26,7 +27,9 @@ export default function RootLayout({
       <body className={`antialiased p-8`}>
         {/* TODO better loading screen */}
         <Suspense fallback="Loading...">
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <UserProvider>{children}</UserProvider>
+          </QueryProvider>
         </Suspense>
       </body>
     </html>

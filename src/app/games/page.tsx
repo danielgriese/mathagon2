@@ -1,14 +1,20 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { ListGamesResponse } from "../api/games/route";
+import { ListGamesRequest, ListGamesResponse } from "@/app/api/games/route";
+import { useMe } from "@/app/components/UserProvider";
+import { fetchAuthed } from "@/utils/fetchAuthed";
 
 export default function GamesPage() {
+  const { me } = useMe();
+
   const query = useQuery({
     queryKey: ["games"],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_URL}/api/games`).then(
-        (res) => res.json() as Promise<ListGamesResponse>
+      fetchAuthed<ListGamesRequest, ListGamesResponse>(
+        "/api/games",
+        me.token,
+        undefined
       ),
   });
 
