@@ -2,11 +2,11 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { GetGameRequest, GetGameResponse } from "../api/game/route";
+import { GetGameResponse } from "../api/game/route";
 import { useMe } from "../components/UserProvider";
 import { fetchAuthed } from "@/utils/fetchAuthed";
 
-export default function GamesPage() {
+export default function GamePage() {
   const params = useSearchParams();
   const gameId = params.get("id");
 
@@ -15,22 +15,32 @@ export default function GamesPage() {
   const query = useQuery({
     queryKey: ["game", gameId],
     queryFn: () =>
-      fetchAuthed<GetGameRequest, GetGameResponse>(
-        `/api/game?id=${gameId}`,
+      fetchAuthed<undefined, GetGameResponse>(
+        `/api/game?gameId=${gameId}`,
         me.token
       ),
   });
 
+  if (query.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const game = query.data?.game;
+
+  // if game is null, we need to show an error/warning with backlink
+  if (!game) {
+    // TODO nicer alert component
+    return (
+      <div>
+        <h1>Game Not Found</h1>
+        <Link href="/games">Back To Games</Link>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {query.isLoading ? (
-        "Loading..."
-      ) : (
-        <div>
-          <h1>Game {query.data?.game.id}</h1>
-        </div>
-      )}
-      <Link href="/games">Back To Games</Link>
+      <h1>game {game._id}</h1>
     </div>
   );
 }

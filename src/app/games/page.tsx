@@ -1,18 +1,19 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { ListGamesRequest, ListGamesResponse } from "@/app/api/games/route";
+import { ListGamesResponse } from "@/app/api/game/route";
 import { useMe } from "@/app/components/UserProvider";
 import { fetchAuthed } from "@/utils/fetchAuthed";
+import { CreateChallengeButton } from "./components/CreateChallengeButton";
 
 export default function GamesPage() {
   const { me } = useMe();
 
-  const query = useQuery({
+  const gamesQuery = useQuery({
     queryKey: ["games"],
     queryFn: () =>
-      fetchAuthed<ListGamesRequest, ListGamesResponse>(
-        "/api/games",
+      fetchAuthed<undefined, ListGamesResponse>(
+        `/api/game?userId=${me.id}`,
         me.token,
         undefined
       ),
@@ -20,21 +21,23 @@ export default function GamesPage() {
 
   return (
     <div>
-      <h1>My Games</h1>
+      <h2>My Games</h2>
 
       <div>
-        {query.isLoading ? (
+        {gamesQuery.isLoading ? (
           "Loading..."
         ) : (
           <ul>
-            {query.data?.games.map((game) => (
-              <li key={game.id}>
-                <Link href={`/game?id=${game.id}`}>Game {game.id}</Link>
+            {gamesQuery.data?.games.map((game) => (
+              <li key={game._id}>
+                <Link href={`/game?id=${game._id}`}>Game {game._id}</Link>
               </li>
             ))}
           </ul>
         )}
       </div>
+
+      <CreateChallengeButton />
 
       <div>
         <Link href="/">Go Home</Link>
