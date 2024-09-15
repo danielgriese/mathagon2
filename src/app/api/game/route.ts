@@ -69,34 +69,60 @@ export const POST = async (req: NextRequest) => {
 
   const db = await connectDB();
 
-  // TODO: if empty challengee, try match make
+  // TODO: this is a poor mans way of making match making
+  // in the future we should have a queue and match making logic, especially on ELO rating
+  const challenge = !!challengeeIds?.length
+    ? await db.Game.findOne({
+        status: "pending",
+        "players[1]._id": { $exists: false },
+      })
+    : null;
 
-  const res = await db.Game.insertOne({
-    _id: new ObjectId().toHexString(),
+  if (challenge) {
+    // add player to game
+    const res = await db.Game.updateOne(
+      {
+        _id: challenge._id,
+      },
+      {
+        $set: { status: "running" }, // TODO only if all players are accepted
+        $push: {
+          players: {
+            _id: userId,
+            username: userId, // TODO: lookup username
+            status: "pending",
+          },
+        },
+      }
+    );
+  } else {
+    const res = await db.Game.insertOne({
+      _id: new ObjectId().toHexString(),
 
-    status: "pending",
+      status: "pending",
 
-    players: [
-      // add own player as accepted
-      { _id: userId, username: userId, status: "accepted" }, // TODO: lookup username
+      players: [
+        // add own player as accepted
+        { _id: userId, username: userId, status: "accepted" }, // TODO: lookup username
 
-      // add challengees as pending
-      ...(challengeeIds?.map((id) => ({
-        _id: id,
-        username: id, // TODO: lookup username
-        status: "pending" as const,
-      })) ?? []),
-    ],
+        // add challengees as pending
+        ...(challengeeIds?.map((id) => ({
+          _id: id,
+          username: id, // TODO: lookup username
+          status: "pending" as const,
+        })) ?? []),
+      ],
 
-    createdAt: new Date(),
+      createdAt: new Date(),
 
-    // empty events? need to add the first (like joiners?)
-    events: [],
-  });
+      // empty events? need to add the first (like joiners?)
+      events: [],
+    });
 
-  return NextResponse.json({
-    gameId: res.insertedId,
-  } satisfies CreateGameResponse);
+    return NextResponse.json({
+      gameId: res.insertedId,
+    } satisfies CreateGameResponse);
+  }
 };
 
 export const dynamic = process.env.APP_BUILD ? "force-static" : "auto";
