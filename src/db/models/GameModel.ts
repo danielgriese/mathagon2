@@ -14,6 +14,6 @@ export type GameModel = {
   createdAt: Date;
 
   // events of game
-  events: any[]; // TODO type
+  events: unknown[]; // TODO type
   // TODO all else
 };

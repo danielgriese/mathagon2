@@ -5,7 +5,7 @@ import { reqToParams } from "@/utils/reqToParams";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { GetGameRequestSchema } from "./schema";
+import { CreateGameSchema, GetGameRequestSchema } from "./schema";
 
 // TODO: pick fields
 export type GetGameResponse = { game: GameModel | null };
@@ -48,14 +48,8 @@ export const GET = async (req: NextRequest) => {
   return NextResponse.json({});
 };
 
-export const CreateGameSchema = z.object({
-  // optionally challenge specific other players
-  challengeeIds: z.array(z.string()).optional(),
-
-  // TODO other fields
-});
-
 // TODO pick reduced set of fields
+export type CreateGameRequest = z.infer<typeof CreateGameSchema>;
 export type CreateGameResponse = { gameId: string };
 
 export const POST = async (req: NextRequest) => {
