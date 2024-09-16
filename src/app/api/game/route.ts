@@ -15,7 +15,7 @@ export const GetGameRequestSchema = z.object({
 
 // TODO: pick fields
 export type GetGameResponse = { game: GameModel | null };
-export type ListGamesResponse = { games: GameModel[] };
+export type ListGamesResponse = { games: Omit<GameModel, "events">[] };
 
 export const GET = async (req: NextRequest) => {
   const { gameId, userId } = GetGameRequestSchema.parse(reqToParams(req));
@@ -33,14 +33,16 @@ export const GET = async (req: NextRequest) => {
   }
 
   if (userId) {
-    // this will be a list request (TODO filter based on user)
+    // this will be a list request
     // TODO check user against token
-    const games = await db.Game.find({
-      // TODO based on actual user
-      // "pending" | "accepted" | "rejected" | "canceled" | "completed";
-      // status: { $ne: "completed" }, // TODO think about challenges logic
-      // $or: [{ "challenger._id": userId }, { "challengee._id": userId }],
-    }).toArray();
+    const games = await db.Game.find(
+      {
+        // game where the current user is a player
+        "players._id": userId,
+        status: { $ne: "completed" }, // TODO think how to do "collected" logic and how to keep games for later reference (archived?)
+      },
+      { projection: { events: 0 } }
+    ).toArray();
 
     const response: ListGamesResponse = {
       games,
@@ -71,16 +73,20 @@ export const POST = async (req: NextRequest) => {
 
   // TODO: this is a poor mans way of making match making
   // in the future we should have a queue and match making logic, especially on ELO rating
-  const challenge = !!challengeeIds?.length
-    ? await db.Game.findOne({
-        status: "pending",
-        "players[1]._id": { $exists: false },
-      })
+  const challenge = !challengeeIds?.length
+    ? await db.Game.findOne(
+        {
+          status: "pending",
+          "players._id": { $ne: userId },
+        },
+        { projection: { _id: 1 } }
+      )
     : null;
 
   if (challenge) {
+    // TODO actual joining and game start logic
     // add player to game
-    const res = await db.Game.updateOne(
+    await db.Game.updateOne(
       {
         _id: challenge._id,
       },
@@ -90,11 +96,15 @@ export const POST = async (req: NextRequest) => {
           players: {
             _id: userId,
             username: userId, // TODO: lookup username
-            status: "pending",
+            status: "accepted",
           },
         },
       }
     );
+
+    return NextResponse.json({
+      gameId: challenge._id,
+    } satisfies CreateGameResponse);
   } else {
     const res = await db.Game.insertOne({
       _id: new ObjectId().toHexString(),

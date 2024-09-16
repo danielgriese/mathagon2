@@ -27,10 +27,17 @@ export default function GamesPage() {
         {gamesQuery.isLoading ? (
           "Loading..."
         ) : (
-          <ul>
+          <ul className="divide-y">
             {gamesQuery.data?.games.map((game) => (
-              <li key={game._id}>
-                <Link href={`/game?id=${game._id}`}>Game {game._id}</Link>
+              <li key={game._id} className="py-4 ">
+                <Link href={`/game?id=${game._id}`}>
+                  Game{" "}
+                  {[
+                    game._id,
+                    game.status,
+                    game.players.map((p) => p.username).join(" | "),
+                  ].join(" - ")}
+                </Link>
               </li>
             ))}
           </ul>

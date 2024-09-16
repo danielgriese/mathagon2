@@ -27,6 +27,7 @@ export const CreateChallengeButton: React.FC<CreateChallengeButtonProps> = (
   // TODO nice button
   return (
     <button
+      className="my-4 p-2 border"
       onClick={async () => {
         const result = await mutation.mutateAsync({});
         console.log("result", result);
