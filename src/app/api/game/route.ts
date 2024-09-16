@@ -5,13 +5,7 @@ import { reqToParams } from "@/utils/reqToParams";
 import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
-export const GetGameRequestSchema = z.object({
-  gameId: z.string().optional(),
-
-  // filter for lists
-  userId: z.string().optional(),
-});
+import { GetGameRequestSchema } from "./schema";
 
 // TODO: pick fields
 export type GetGameResponse = { game: GameModel | null };
