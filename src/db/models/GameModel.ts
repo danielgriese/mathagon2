@@ -1,3 +1,5 @@
+import { GameEvent } from "@/game/commands";
+
 export type GameModel = {
   _id: string;
 
@@ -14,6 +16,6 @@ export type GameModel = {
   createdAt: Date;
 
   // events of game
-  events: unknown[]; // TODO type
+  events: GameEvent[];
   // TODO all else
 };

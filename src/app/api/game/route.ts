@@ -2,13 +2,16 @@ import connectDB from "@/db/connectDB";
 import { GameModel } from "@/db/models/GameModel";
 import { getRequester } from "@/utils/getRequester";
 import { reqToParams } from "@/utils/reqToParams";
-import { ObjectId } from "mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { CreateGameSchema, GetGameRequestSchema } from "./schema";
+import { createGame } from "@/services/createGame";
+import { createContext } from "@/utils/createContext";
+import { CommandsSchema } from "@/game/commands";
+import { processCommand } from "@/game/processCommand";
 
 // TODO: pick fields
-export type GetGameResponse = { game: GameModel | null };
+export type GetGameResponse = { game: Omit<GameModel, "events"> | null };
 export type ListGamesResponse = { games: Omit<GameModel, "events">[] };
 
 export const GET = async (req: NextRequest) => {
@@ -18,9 +21,12 @@ export const GET = async (req: NextRequest) => {
 
   // if we have an id, this is a lookup request
   if (gameId) {
-    const game = await db.Game.findOne({
-      _id: gameId,
-    });
+    const game = await db.Game.findOne(
+      {
+        _id: gameId,
+      },
+      { projection: { events: 0 } }
+    );
 
     const response: GetGameResponse = { game };
     return NextResponse.json(response);
@@ -52,75 +58,35 @@ export const GET = async (req: NextRequest) => {
 export type CreateGameRequest = z.infer<typeof CreateGameSchema>;
 export type CreateGameResponse = { gameId: string };
 
+// post is used to create a new game
 export const POST = async (req: NextRequest) => {
-  const { challengeeIds } = CreateGameSchema.parse(reqToParams(req));
-
   const { userId } = await getRequester();
+  const context = createContext(userId);
 
-  const db = await connectDB();
+  const payload = CreateGameSchema.parse(await req.json());
 
-  // TODO: this is a poor mans way of making match making
-  // in the future we should have a queue and match making logic, especially on ELO rating
-  const challenge = !challengeeIds?.length
-    ? await db.Game.findOne(
-        {
-          status: "pending",
-          "players._id": { $ne: userId },
-        },
-        { projection: { _id: 1 } }
-      )
-    : null;
+  const { gameId } = await createGame(payload, context);
 
-  if (challenge) {
-    // TODO actual joining and game start logic
-    // add player to game
-    await db.Game.updateOne(
-      {
-        _id: challenge._id,
-      },
-      {
-        $set: { status: "running" }, // TODO only if all players are accepted
-        $push: {
-          players: {
-            _id: userId,
-            username: userId, // TODO: lookup username
-            status: "accepted",
-          },
-        },
-      }
-    );
+  return NextResponse.json({ gameId });
+};
 
-    return NextResponse.json({
-      gameId: challenge._id,
-    } satisfies CreateGameResponse);
-  } else {
-    const res = await db.Game.insertOne({
-      _id: new ObjectId().toHexString(),
+export type PutCommandResponse = Awaited<ReturnType<typeof processCommand>>;
 
-      status: "pending",
+// put is used to process a command from the user
+export const PUT = async (req: NextRequest) => {
+  const { userId } = await getRequester();
+  const context = createContext(userId);
 
-      players: [
-        // add own player as accepted
-        { _id: userId, username: userId, status: "accepted" }, // TODO: lookup username
+  const payload = CommandsSchema.parse(await req.json());
 
-        // add challengees as pending
-        ...(challengeeIds?.map((id) => ({
-          _id: id,
-          username: id, // TODO: lookup username
-          status: "pending" as const,
-        })) ?? []),
-      ],
+  const response = await processCommand(payload, context);
 
-      createdAt: new Date(),
-
-      // empty events? need to add the first (like joiners?)
-      events: [],
-    });
-
-    return NextResponse.json({
-      gameId: res.insertedId,
-    } satisfies CreateGameResponse);
-  }
+  // return the events that were added during that process
+  return NextResponse.json(
+    response.ok
+      ? { ok: response.ok, events: response.events }
+      : { ok: response.ok, error: response.error }
+  );
 };
 
 export const dynamic = process.env.APP_BUILD ? "force-static" : "auto";

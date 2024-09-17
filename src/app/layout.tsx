@@ -24,11 +24,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased p-8`}>
+      <body className={`antialiased`}>
         {/* TODO better loading screen */}
         <Suspense fallback="Loading...">
           <QueryProvider>
-            <UserProvider>{children}</UserProvider>
+            <UserProvider>
+              <div className="h-screen max-h-screen grid grid-rows-[auto_1fr_auto]  p-8">
+                {children}
+              </div>
+            </UserProvider>
           </QueryProvider>
         </Suspense>
       </body>

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { GetGameResponse } from "../api/game/route";
 import { useMe } from "../components/UserProvider";
 import { fetchAuthed } from "@/utils/fetchAuthed";
+import { Game } from "./components/Game";
 
 export default function GamePage() {
   const params = useSearchParams();
@@ -19,6 +20,14 @@ export default function GamePage() {
         `/api/game?gameId=${gameId}`,
         me.token
       ),
+    refetchInterval(query) {
+      // while pending we want to poll every second
+      if (query.state.data?.game?.status === "pending") {
+        return 1000;
+      } else {
+        return false;
+      }
+    },
   });
 
   if (query.isLoading) {
@@ -38,9 +47,17 @@ export default function GamePage() {
     );
   }
 
-  return (
-    <div>
-      <h1>game {game._id}</h1>
-    </div>
-  );
+  if (game.status === "pending") {
+    // TODO same UI structure as regular game?
+    return (
+      <div>
+        <h1>Game {game._id}</h1>
+        <p>Waiting for players</p>
+        {/* TODO: add option to cancel challenge */}
+        <Link href="/games">Back To Games</Link>
+      </div>
+    );
+  }
+
+  return <Game gameId={game._id} />;
 }

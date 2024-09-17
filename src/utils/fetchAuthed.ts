@@ -10,5 +10,7 @@ export function fetchAuthed<
       ContentType: "application/json",
     },
     body: body ? JSON.stringify(body) : undefined,
-  }).then((res) => res.json() as Promise<TResult>);
+  }).then((res) =>
+    res.ok ? (res.json() as Promise<TResult>) : Promise.reject(res.text())
+  );
 }
