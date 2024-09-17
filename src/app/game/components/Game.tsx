@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useGame } from "../hooks/useGame";
 import { Player } from "./Player";
-import { Board } from "./Board";
+import { Board, BoardProps } from "./Board";
 import { MyCoins } from "./MyCoins";
 
 export type GameProps = {
@@ -18,6 +18,18 @@ export const Game: React.FC<GameProps> = (props) => {
 
   const myPlayer = state.players.find((player) => player._id === me.id);
 
+  const handleDropCoin: BoardProps["onDropCoin"] = useCallback(
+    (colIdx, rowIdx, coinId) => {
+      action({
+        type: "drop-coin",
+        coinId: coinId,
+        column: colIdx,
+        row: rowIdx,
+      });
+    },
+    [action]
+  );
+
   return (
     <>
       <header>
@@ -33,7 +45,7 @@ export const Game: React.FC<GameProps> = (props) => {
       </header>
       <main>
         {/* Coins and Board */}
-        <Board board={state.board} />
+        <Board board={state.board} onDropCoin={handleDropCoin} />
       </main>
       <footer>
         {/* Game Actions */}

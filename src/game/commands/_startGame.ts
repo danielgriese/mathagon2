@@ -45,11 +45,11 @@ export const _startGame: PrivateCommandHandler<{
     }
   }
 
-  // pass turn to first player
+  // pass turn to the player initiating the game
   state = await pushEvents(state, [
     {
       type: "turn-received",
-      playerId: state.state.players[0]._id,
+      playerId: context.userId,
     },
   ]);
 
