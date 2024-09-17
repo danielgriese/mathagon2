@@ -65,7 +65,8 @@ export function useGame(gameId: string) {
         processQueue();
       }
     }
-  }, [eventsQuery.data?.events]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventsQuery.data]);
 
   const processQueue = () => {
     setIsProcessing(true);

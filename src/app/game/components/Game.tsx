@@ -13,7 +13,8 @@ export type GameProps = {
 // it should be possible to flush all events at once (with no effects being played)
 
 export const Game: React.FC<GameProps> = (props) => {
-  const { state, action, me, isLoading } = useGame(props.gameId);
+  const { state, action, me } = useGame(props.gameId);
+  // TODO isLoading with skeleton
 
   const myPlayer = state.players.find((player) => player._id === me.id);
 

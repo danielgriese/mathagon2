@@ -1,7 +1,6 @@
 import { BaseEvent } from "./base";
-import { GameEvent, PrivateCommandHandler, pushEvents } from ".";
+import { PrivateCommandHandler, pushEvents } from ".";
 import { FieldType, GameState } from "../types";
-import { reduceGameEvent } from "../reducer/reduceGameEvent";
 import { GameModel } from "@/db/models/GameModel";
 import { _drawCoin } from "./_drawCoin";
 

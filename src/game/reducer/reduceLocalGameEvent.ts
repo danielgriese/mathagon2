@@ -7,7 +7,7 @@ export function reduceAppGameEvent(
   event: GameEvent
 ): GameStateLocal {
   // use general game reducer first
-  let state = reduceGameEvent(prevState, event) as GameStateLocal;
+  const state = reduceGameEvent(prevState, event) as GameStateLocal;
 
   //   console.log("reduce local event", event);
 

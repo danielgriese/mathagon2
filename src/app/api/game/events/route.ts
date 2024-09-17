@@ -6,7 +6,14 @@ import { GameEvent } from "@/game/commands";
 
 export type GetGameEventsResponse = { events: GameEvent[] };
 
+const IS_APP_BUILD = !!process.env.APP_BUILD;
+
 export const GET = async (req: NextRequest) => {
+  // There must be a better way
+  if (IS_APP_BUILD) {
+    return NextResponse.json({ events: [] });
+  }
+
   const { gameId, userId, after } = GetEventsRequestSchema.parse(
     reqToParams(req)
   );
@@ -44,3 +51,5 @@ export const GET = async (req: NextRequest) => {
   const response: GetGameEventsResponse = { events: game?.events || [] };
   return NextResponse.json(response);
 };
+
+export const dynamic = IS_APP_BUILD ? "force-static" : "auto";

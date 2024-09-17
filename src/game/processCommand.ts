@@ -28,7 +28,7 @@ export async function processCommand(
   const state = game?.events.reduce(reduceGameEvent, {
     id: gameId,
     players: [],
-    numbers: [],
+    coins: [],
     board: [],
   });
 

@@ -1,7 +1,6 @@
 import { CreateGameSchema } from "@/app/api/game/schema";
 import connectDB from "@/db/connectDB";
 import { _startGame } from "@/game/commands/_startGame";
-import { processCommand } from "@/game/processCommand";
 import { IContext } from "@/utils/types";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
@@ -60,7 +59,7 @@ export async function createGame(
         state: {
           id: challenge._id,
           players: [],
-          numbers: [],
+          coins: [],
           board: [],
         },
         events: [],
