@@ -18,15 +18,12 @@ export const Field: React.FC<FieldProps> = (props) => {
     data: { rowIdx, colIdx },
   });
 
-  const style = {
-    color: isOver ? "green" : undefined,
-  };
-
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className="w-8 h-8 grid place-items-center border border-black"
+      className={`w-8 h-8 grid place-items-center border ${
+        isOver ? "border-green-500 border-2" : "border-black"
+      }`}
       // draggable={true} // TODO check fror drop targets
       // onDragOver={(e) => {
       //   // TODO check fror drop targets
