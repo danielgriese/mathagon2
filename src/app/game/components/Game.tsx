@@ -48,7 +48,11 @@ export const Game: React.FC<GameProps> = (props) => {
       onDragEnd={(e) => {
         const coin = draggedCoin;
 
-        const { rowIdx, colIdx } = e.over?.data.current as {
+        const dragData = e.over?.data.current;
+        if (!dragData) {
+          return;
+        }
+        const { rowIdx, colIdx } = dragData as {
           rowIdx: number;
           colIdx: number;
         };
