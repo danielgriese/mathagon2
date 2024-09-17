@@ -1,5 +1,6 @@
 import { GameStateLocal } from "@/game/types";
 import React from "react";
+import { Field } from "./Field";
 
 export type BoardProps = {
   board: GameStateLocal["board"];
@@ -15,24 +16,12 @@ export const Board: React.FC<BoardProps> = (props) => {
       {board.map((col, idx) => (
         <div key={idx} className="flex flex-col">
           {col.map((cell, idx2) => (
-            <div
-              key={idx2}
-              className="w-8 h-8 grid place-items-center border border-black"
-              draggable={true} // TODO check fror drop targets
-              onDragOver={(e) => {
-                // TODO check fror drop targets
-                e.preventDefault();
-              }}
-              onDrop={(e) => {
-                props.onDropCoin(
-                  idx,
-                  idx2,
-                  parseInt(e.dataTransfer.getData("coinId"))
-                );
-              }}
-            >
-              {cell}
-            </div>
+            <Field
+              key={`${idx}-${idx2}`}
+              colIdx={idx}
+              rowIdx={idx2}
+              type={cell}
+            />
           ))}
         </div>
       ))}

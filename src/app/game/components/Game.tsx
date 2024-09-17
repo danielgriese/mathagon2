@@ -1,8 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useGame } from "../hooks/useGame";
 import { Player } from "./Player";
 import { Board, BoardProps } from "./Board";
 import { MyCoins } from "./MyCoins";
+
+import { DndContext } from "@dnd-kit/core";
+import { CoinProps } from "./Coin";
 
 export type GameProps = {
   gameId: string;
@@ -14,6 +17,9 @@ export type GameProps = {
 
 export const Game: React.FC<GameProps> = (props) => {
   const { state, action, me } = useGame(props.gameId);
+  const [draggedCoin, setDraggedCoin] = useState<CoinProps["coin"] | null>(
+    null
+  );
   // TODO isLoading with skeleton
 
   const myPlayer = state.players.find((player) => player._id === me.id);
@@ -31,7 +37,28 @@ export const Game: React.FC<GameProps> = (props) => {
   );
 
   return (
-    <>
+    <DndContext
+      onDragStart={(e) => {
+        // get dragged coin by id
+        const coin = myPlayer?.coins.find((coin) => coin.id === e.active.id);
+        if (coin) {
+          setDraggedCoin(coin);
+        }
+      }}
+      onDragEnd={(e) => {
+        const coin = draggedCoin;
+
+        const { rowIdx, colIdx } = e.over?.data.current as {
+          rowIdx: number;
+          colIdx: number;
+        };
+        setDraggedCoin(null);
+
+        if (coin) {
+          handleDropCoin(colIdx, rowIdx, coin.id);
+        }
+      }}
+    >
       <header>
         <div className="flex items-center">
           {state.players.map((player) => (
@@ -91,6 +118,6 @@ export const Game: React.FC<GameProps> = (props) => {
           Pass Turn
         </button>
       </footer>
-    </>
+    </DndContext>
   );
 };
