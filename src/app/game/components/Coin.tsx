@@ -36,7 +36,7 @@ export const Coin: React.FC<CoinProps> = (props) => {
 
   return (
     <div
-      className="w-8 h-8 grid place-items-center border border-black"
+      className="w-8 h-8 grid place-items-center border border-black touch-none"
       ref={setNodeRef}
       style={style}
       {...listeners}
