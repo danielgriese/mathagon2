@@ -27,7 +27,7 @@ export const Coin: React.FC<CoinProps> = (props) => {
 
   return (
     <div
-      className="touch-none  w-1/5"
+      className="touch-none w-1/5"
       ref={setNodeRef}
       style={style}
       {...listeners}
@@ -36,7 +36,7 @@ export const Coin: React.FC<CoinProps> = (props) => {
       <Hexagon
         className={cn(
           props.className,
-          "fill-white stroke-black stroke-[4px] max-h-16",
+          "fill-white stroke-black stroke-[4px] max-h-16  mx-auto",
           isDragging ? "opacity-60" : "opacity-100"
         )}
       >
