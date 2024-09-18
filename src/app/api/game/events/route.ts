@@ -14,13 +14,10 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ events: [] });
   }
 
-  const { gameId, userId, after } = GetEventsRequestSchema.parse(
-    reqToParams(req)
-  );
+  // userId
+  const { gameId, after } = GetEventsRequestSchema.parse(reqToParams(req));
 
   // TODO validate user from cookie
-
-  console.log("GET /game/events", { gameId, userId, after });
 
   const db = await connectDB();
 

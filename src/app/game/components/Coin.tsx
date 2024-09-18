@@ -7,32 +7,18 @@ export type CoinProps = {
 };
 
 export const Coin: React.FC<CoinProps> = (props) => {
-  const { coin, hasTurn } = props;
-
-  console.log("Coin", coin, hasTurn);
+  const { coin } = props;
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: coin.id,
+    disabled: !props.hasTurn,
   });
+
   const style = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       }
     : undefined;
-
-  //   const [{}, drag] = useDrag(
-  //     () => ({
-  //       type: "coin",
-  //       item: { coin: props.coin },
-  //       collect: (monitor) => ({
-  //         isDragging: !!monitor.isDragging(),
-  //       }),
-  //       canDrag: hasTurn,
-
-  //       Coin,
-  //     }),
-  //     []
-  //   );
 
   return (
     <div
