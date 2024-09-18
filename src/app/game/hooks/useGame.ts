@@ -36,14 +36,6 @@ export function useGame(gameId: string) {
     refetchInterval: 5000, // every 5 seconds
   });
 
-  // use effect to set the last token
-  useEffect(() => {
-    if (eventsQuery.data?.events?.length) {
-      lastToken.current =
-        eventsQuery.data.events[eventsQuery.data.events.length - 1]._id;
-    }
-  }, [eventsQuery.data]);
-
   const [state, dispatchEvent] = useReducer(reduceAppGameEvent, {
     // id of this game
     id: gameId,
@@ -56,17 +48,33 @@ export function useGame(gameId: string) {
 
   // dispatch any new events in delayed manner
   useEffect(() => {
-    if (eventsQuery.data?.events?.length) {
-      console.log("adding events to queue", eventsQuery.data.events);
-      eventQueue.current.push(...eventsQuery.data.events);
-      eventsQuery.data.events = [];
+    const events = eventsQuery.data?.events;
 
-      if (!isProcessing) {
-        processQueue();
+    if (events?.length) {
+      console.log("adding events to queue", events);
+
+      if (lastToken.current) {
+        // if we have a last token, the game is already started
+        // in that case we want to push events to the queue to be handled "async"
+        eventQueue.current.push(...events);
+        // eventsQuery.data.events = [];
+
+        if (!isProcessing) {
+          processQueue();
+        }
+      } else {
+        // if we don't have a last token, the game is just starting
+        // in that case we immediately dispatch the events
+        events.forEach((event) => {
+          dispatchEvent(event);
+        });
       }
+
+      // set the last token for next query
+      lastToken.current = events[events.length - 1]._id;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventsQuery.data]);
+  }, [eventsQuery.data?.events]);
 
   const processQueue = () => {
     setIsProcessing(true);
