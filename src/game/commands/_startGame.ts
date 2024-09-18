@@ -1,5 +1,5 @@
 import { BaseEvent } from "./base";
-import { PrivateCommandHandler, pushEvents } from ".";
+import { PrivateCommandHandler, pushEvent } from ".";
 import { FieldType, GameState } from "../types";
 import { GameModel } from "@/db/models/GameModel";
 import { _drawCoin } from "./_drawCoin";
@@ -23,14 +23,12 @@ export const _startGame: PrivateCommandHandler<{
   let state = prevState;
 
   // push the game started event first
-  state = pushEvents(state, [
-    {
-      type: "game-started",
-      board: DEFAULT_BOARD,
-      numbers: DEFAULT_NUMBERS,
-      players: payload.players,
-    },
-  ]);
+  state = pushEvent(state, {
+    type: "game-started",
+    board: DEFAULT_BOARD,
+    numbers: DEFAULT_NUMBERS,
+    players: payload.players,
+  });
 
   // now let all players draw numbers
   for (const player of payload.players) {
@@ -39,19 +37,17 @@ export const _startGame: PrivateCommandHandler<{
       // TODO different initial numbers?
       state = await _drawCoin(
         state,
-        { gameId: state.state.id, playerId: player._id, maxValue: 12 },
+        { gameId: state.state.id, playerId: player._id, range: [1, 12] },
         context
       );
     }
   }
 
   // pass turn to the player initiating the game
-  state = await pushEvents(state, [
-    {
-      type: "turn-received",
-      playerId: context.userId,
-    },
-  ]);
+  state = await pushEvent(state, {
+    type: "turn-received",
+    playerId: context.userId,
+  });
 
   return state;
 };

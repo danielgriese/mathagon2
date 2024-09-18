@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseCommandSchema, BaseEvent } from "./base";
-import { CommandHandler, pushEvents } from ".";
+import { CommandHandler, pushEvent } from ".";
 import { _drawCoin } from "./_drawCoin";
 
 export const PassTurnCommandSchema = BaseCommandSchema.extend({
@@ -39,12 +39,10 @@ export const passTurn: CommandHandler<"pass-turn"> = async (
   // actually pass turn to next player
   const nextPlayerIndex = (playerIndex + 1) % players.length;
 
-  state = pushEvents(state, [
-    {
-      type: "turn-received",
-      playerId: players[nextPlayerIndex]._id,
-    },
-  ]);
+  state = pushEvent(state, {
+    type: "turn-received",
+    playerId: players[nextPlayerIndex]._id,
+  });
 
   // depending on how many coins the user is missing, we try to give as many new
   const missingCoins = 5 - player.coins.length;

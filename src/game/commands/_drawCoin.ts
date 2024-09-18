@@ -1,4 +1,4 @@
-import { PrivateCommandHandler, pushEvents } from ".";
+import { PrivateCommandHandler, pushEvent } from ".";
 import { GameState } from "../types";
 import { BaseEvent } from "./base";
 
@@ -10,7 +10,7 @@ export interface DrawnCoinEvent extends BaseEvent {
 
 export const _drawCoin: PrivateCommandHandler<{
   playerId: string;
-  maxValue?: number;
+  range?: [number, number];
 }> = async (state, payload, context) => {
   console.log("drawCoin", { state, payload, context });
 
@@ -19,19 +19,23 @@ export const _drawCoin: PrivateCommandHandler<{
   let coins = state.state.coins;
 
   // if we have a max value, we can filter the numbers
-  if (payload.maxValue !== undefined) {
-    coins = coins.filter((c) => c.value <= (payload.maxValue ?? 0));
+  if (payload.range !== undefined) {
+    const [minValue, maxValue] = payload.range;
+    coins = coins.filter((c) => c.value >= minValue && c.value <= maxValue);
   }
 
   // get a random number
   const value = coins[Math.floor(Math.random() * coins.length)];
 
+  // no number left -> return the current state
+  if (!value) {
+    return state;
+  }
+
   // push event
-  return pushEvents(state, [
-    {
-      type: "coin-drawn",
-      playerId: payload.playerId,
-      coin: value,
-    },
-  ]);
+  return pushEvent(state, {
+    type: "coin-drawn",
+    playerId: payload.playerId,
+    coin: value,
+  });
 };

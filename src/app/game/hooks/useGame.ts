@@ -108,12 +108,14 @@ export function useGame(gameId: string) {
       console.log("onSuccess", data);
 
       if (data.ok) {
-        // add events to local queue
-        eventQueue.current.push(...data.events);
+        // refetch the events query immediately
+        eventsQuery.refetch();
+        // // add events to local queue
+        // eventQueue.current.push(...data.events);
 
-        if (!isProcessing) {
-          processQueue();
-        }
+        // if (!isProcessing) {
+        //   processQueue();
+        // }
       } else {
         // TODO show errors differently (sonner?)
         alert(data.error);

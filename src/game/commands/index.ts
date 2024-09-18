@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { GameState } from "../types";
 import { IContext } from "@/utils/types";
-import { CoinDroppedEvent, dropCoin, DropCoinCommandSchema } from "./dropCoin";
+import {
+  CoinDroppedEvent,
+  CoinsClearedEvent,
+  dropCoin,
+  DropCoinCommandSchema,
+} from "./dropCoin";
 import { passTurn, PassTurnCommandSchema, TurnReceivedEvent } from "./passTurn";
 import { GameStartedEvent } from "./_startGame";
 import { reduceGameEvent } from "../reducer/reduceGameEvent";
@@ -19,7 +24,8 @@ export type GameEvent =
   | GameStartedEvent
   | DrawnCoinEvent
   | TurnReceivedEvent
-  | CoinDroppedEvent;
+  | CoinDroppedEvent
+  | CoinsClearedEvent;
 
 export type CommandHandler<TType extends Commands["type"]> = (
   state: { state: GameState; events: GameEvent[] },
@@ -47,16 +53,17 @@ export const CommandMap: CommandHandlers = {
   "pass-turn": passTurn,
 };
 
-export function pushEvents(
+export function pushEvent(
   state: { state: GameState; events: GameEvent[] },
-  events: OptionalId<GameEvent>[]
+  event: OptionalId<GameEvent>
 ): { state: GameState; events: GameEvent[] } {
-  const eventsWithId = events.map((event) => ({
+  const eventWithId = {
     ...event,
     _id: new ObjectId().toHexString(),
-  }));
+  };
+
   return {
-    state: eventsWithId.reduce(reduceGameEvent, state.state),
-    events: [...state.events, ...eventsWithId],
+    state: reduceGameEvent(state.state, eventWithId),
+    events: [...state.events, eventWithId],
   };
 }
