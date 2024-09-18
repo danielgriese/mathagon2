@@ -15,6 +15,8 @@ export type FieldProps = {
 export const Field: React.FC<FieldProps> = (props) => {
   const { rowIdx, colIdx, type } = props;
 
+  console.log("render field", rowIdx, colIdx);
+
   const { isOver, setNodeRef } = useDroppable({
     id: `${rowIdx}-${colIdx}`,
     data: { rowIdx, colIdx },
@@ -32,9 +34,14 @@ export const Field: React.FC<FieldProps> = (props) => {
       width={HEXAGON_WIDTH}
       height={HEXAGON_HEIGHT}
       className={clsx(
-        "pointer-events-auto transition-colors duration-[2s] ease-out stroke-black stroke-[4px]",
-        type !== null || isDropTarget ? "fill-white" : "fill-slate-200",
-        isOver ? (isDropTarget ? "fill-green-600" : "fill-red-600") : ""
+        "pointer-events-auto transition-colors duration-[2000ms] ease-out stroke-black stroke-[4px]",
+        isOver
+          ? isDropTarget
+            ? "fill-green-600"
+            : "fill-red-600"
+          : type !== null || isDropTarget
+          ? "fill-white"
+          : "fill-slate-200"
       )}
     >
       {typeof type === "number" && (
