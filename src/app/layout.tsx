@@ -29,8 +29,10 @@ export default function RootLayout({
         <Suspense fallback="Loading...">
           <QueryProvider>
             <UserProvider>
-              <div className="h-screen max-h-screen grid grid-rows-[auto_1fr_auto]  p-8">
-                {children}
+              <div className="h-screen max-h-screen mx-auto max-w-screen-md">
+                <div className="h-screen grid grid-rows-[auto_1fr_auto]">
+                  {children}
+                </div>
               </div>
             </UserProvider>
           </QueryProvider>

@@ -64,7 +64,10 @@ export default function GamePage() {
       <Game
         gameId={game._id}
         // when the game ends, we refetch the query to get the final state
-        onGameEnded={() => query.refetch()}
+        onGameEnded={() => {
+          console.log("refetch due to end");
+          query.refetch();
+        }}
       />
       {game.status === "completed" && (
         <div className="fixed inset-0 bg-black/40 grid place-items-center text-white">

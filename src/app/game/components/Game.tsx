@@ -24,11 +24,12 @@ export const Game: React.FC<GameProps> = (props) => {
   // TODO isLoading with skeleton
 
   // use effect to check if game ended
+  const { onGameEnded } = props;
   useEffect(() => {
     if (state.gameEnded) {
-      props.onGameEnded();
+      onGameEnded();
     }
-  }, [state.gameEnded]);
+  }, [state.gameEnded, onGameEnded]);
 
   const myPlayer = state.players.find((player) => player._id === me.id);
 
@@ -77,14 +78,19 @@ export const Game: React.FC<GameProps> = (props) => {
             <Player key={player._id} player={player} />
           ))}
         </div>
-        <MyCoins
-          coins={myPlayer?.coins ?? []}
-          hasTurn={myPlayer?.hasTurn ?? false}
-        />
+
+        <div className="min-h-[48px] my-4 px-2">
+          <MyCoins
+            coins={myPlayer?.coins ?? []}
+            hasTurn={myPlayer?.hasTurn ?? false}
+          />
+        </div>
       </header>
-      <main>
+      <main className="w-full h-full p-2 grid place-items-center">
         {/* Coins and Board */}
-        <Board board={state.board} onDropCoin={handleDropCoin} />
+        <div className="w-full h-auto">
+          <Board board={state.board} onDropCoin={handleDropCoin} />
+        </div>
       </main>
       <footer>
         {/* Game Actions */}
