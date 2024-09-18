@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { BaseCommandSchema, BaseEvent } from "./base";
 import { CommandHandler, pushEvent } from ".";
-import { _drawCoin } from "./_drawCoin";
 import { _endGame } from "./_endGame";
 import { passTurn } from "./passTurn";
 

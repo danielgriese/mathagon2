@@ -6,6 +6,7 @@ export interface GameEndedEvent extends BaseEvent {
   // add data and props here
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const _endGame: PrivateCommandHandler<{}> = async (
   prevState,
   payload,
