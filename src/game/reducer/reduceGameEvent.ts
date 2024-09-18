@@ -21,6 +21,10 @@ export function reduceGameEvent(state: GameState, event: GameEvent): GameState {
           hasTurn: false,
           multiplier: 1,
           score: 0,
+
+          hasMadeMove: false,
+          nonMovedPasses: 0,
+          didFold: false,
         }));
         break;
       }
@@ -56,6 +60,9 @@ export function reduceGameEvent(state: GameState, event: GameEvent): GameState {
 
           // add points to player
           player.score += event.points;
+
+          // reset player fold
+          resetPlayerFold(player);
         }
 
         // add coin to board
@@ -71,14 +78,49 @@ export function reduceGameEvent(state: GameState, event: GameEvent): GameState {
         if (player) {
           player.score += event.points;
         }
+        break;
       }
 
       case "turn-received": {
-        // go through all players and set hasTurn to false or true
-        draft.players.forEach((player) => {
-          player.hasTurn = player._id === event.playerId;
-        });
+        // check if the previous player has made a move
+        const prevPlayer = event.prevPlayerId
+          ? getPlayer(draft, { playerId: event.prevPlayerId })
+          : undefined;
 
+        if (prevPlayer) {
+          prevPlayer.hasTurn = false;
+
+          if (!prevPlayer.hasMadeMove) {
+            // he did not make a move, so we increase the nonMovedPasses
+            prevPlayer.nonMovedPasses++;
+          }
+        }
+
+        // pass turn to next player
+        const nextPlayer = getPlayer(draft, { playerId: event.nextPlayerId });
+        if (nextPlayer) {
+          nextPlayer.hasTurn = true;
+          nextPlayer.hasMadeMove = false;
+        }
+
+        break;
+      }
+
+      case "player-folded": {
+        const player = getPlayer(draft, event);
+
+        if (player) {
+          player.didFold = true;
+        }
+
+        break;
+      }
+
+      case "game-ended": {
+        // remove turn of all players
+        draft.players.forEach((player) => {
+          player.hasTurn = false;
+        });
         break;
       }
     }
@@ -92,4 +134,10 @@ function getPlayer(
   event: { playerId: string }
 ): WritableDraft<PlayerState> | undefined {
   return state.players.find((player) => player._id === event.playerId);
+}
+
+function resetPlayerFold(player: WritableDraft<PlayerState>) {
+  player.hasMadeMove = true;
+  player.nonMovedPasses = 0;
+  player.didFold = false;
 }

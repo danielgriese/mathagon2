@@ -5,12 +5,12 @@ import { _drawCoin } from "./_drawCoin";
 
 export const PassTurnCommandSchema = BaseCommandSchema.extend({
   type: z.literal("pass-turn"),
-  // pass turn does not have any specific payload
 });
 
 export interface TurnReceivedEvent extends BaseEvent {
   type: "turn-received";
-  playerId: string;
+  prevPlayerId: string | null;
+  nextPlayerId: string;
 }
 
 export const passTurn: CommandHandler<"pass-turn"> = async (
@@ -20,12 +20,9 @@ export const passTurn: CommandHandler<"pass-turn"> = async (
 ) => {
   let state = prevState;
 
-  console.log("passTurn", { state, payload, context });
-
   const players = state.state.players;
 
-  // TODO simplify getting player and index of it
-  //   check if the player is allowed to pass the turn
+  // check if the player is allowed to pass the turn
   const playerIndex = players.findIndex((p) => p._id === payload.playerId);
   const player = players[playerIndex];
 
@@ -41,7 +38,8 @@ export const passTurn: CommandHandler<"pass-turn"> = async (
 
   state = pushEvent(state, {
     type: "turn-received",
-    playerId: players[nextPlayerIndex]._id,
+    prevPlayerId: player._id,
+    nextPlayerId: players[nextPlayerIndex]._id,
   });
 
   // depending on how many coins the user is missing, we try to give as many new

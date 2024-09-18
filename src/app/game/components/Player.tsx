@@ -9,15 +9,9 @@ export const Player: React.FC<PlayerProps> = (props) => {
   const { player } = props;
 
   return (
-    <div>
-      <pre>
-        {[
-          player.username,
-          player.hasTurn,
-          player.score,
-          player.multiplier,
-        ].join(" | ")}
-      </pre>
+    <div className={player.hasTurn ? "opacity-100" : "opacity-50"}>
+      <div className="text-xs">@{player.username}</div>
+      <div>{player.score}</div>
     </div>
   );
 };

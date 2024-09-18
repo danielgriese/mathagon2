@@ -2,6 +2,7 @@ import { IContext } from "@/utils/types";
 import { CommandHandler, CommandMap, Commands, GameEvent } from "./commands";
 import connectDB from "@/db/connectDB";
 import { reduceGameEvent } from "./reducer/reduceGameEvent";
+import { endGame } from "@/services/endGame";
 
 export async function processCommand(
   command: Commands,
@@ -54,6 +55,12 @@ export async function processCommand(
         },
       }
     );
+
+    // check if the last event ended the game
+    const lastEvent = response.events[response.events.length - 1];
+    if (lastEvent.type === "game-ended") {
+      await endGame(gameId, context);
+    }
   }
 
   // return the ok code and events

@@ -2,8 +2,8 @@ import { useMe } from "@/app/components/UserProvider";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { GetGameEventsResponse } from "@/app/api/game/events/route";
 import { fetchAuthed } from "@/utils/fetchAuthed";
-import { useEffect, useReducer, useRef, useState } from "react";
-import { reduceAppGameEvent } from "@/game/reducer/reduceLocalGameEvent";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { createLocalGameEventReducer } from "@/game/reducer/reduceLocalGameEvent";
 import { Commands, GameEvent } from "@/game/commands";
 import { type PutCommandResponse } from "@/app/api/game/route";
 import { GameStateLocal } from "@/game/types";
@@ -33,15 +33,24 @@ export function useGame(gameId: string) {
         me.token
       ),
 
+    refetchOnWindowFocus: true,
     refetchInterval: 5000, // every 5 seconds
   });
 
-  const [state, dispatchEvent] = useReducer(reduceAppGameEvent, {
+  const appReducer = useMemo(
+    () => createLocalGameEventReducer(/*me.id*/),
+    [] // [me.id]
+  );
+
+  const [state, dispatchEvent] = useReducer(appReducer, {
     // id of this game
     id: gameId,
     players: [],
     coins: [],
     board: [],
+
+    // additional local state
+    gameEnded: false,
 
     // dropTargets: [],
   } satisfies GameStateLocal);

@@ -12,20 +12,25 @@ import { GameStartedEvent } from "./_startGame";
 import { reduceGameEvent } from "../reducer/reduceGameEvent";
 import { DrawnCoinEvent } from "./_drawCoin";
 import { ObjectId, OptionalId } from "mongodb";
+import { fold, FoldCommandSchema, PlayerFoldedEvent } from "./fold";
+import { GameEndedEvent } from "./_endGame";
 
 export const CommandsSchema = z.union([
   DropCoinCommandSchema,
   PassTurnCommandSchema,
+  FoldCommandSchema,
 ]);
 
 export type Commands = z.infer<typeof CommandsSchema>;
 
 export type GameEvent =
   | GameStartedEvent
+  | GameEndedEvent
   | DrawnCoinEvent
   | TurnReceivedEvent
   | CoinDroppedEvent
-  | CoinsClearedEvent;
+  | CoinsClearedEvent
+  | PlayerFoldedEvent;
 
 export type CommandHandler<TType extends Commands["type"]> = (
   state: { state: GameState; events: GameEvent[] },
@@ -51,6 +56,7 @@ type CommandHandlers = {
 export const CommandMap: CommandHandlers = {
   "drop-coin": dropCoin,
   "pass-turn": passTurn,
+  fold: fold,
 };
 
 export function pushEvent(

@@ -59,5 +59,19 @@ export default function GamePage() {
     );
   }
 
-  return <Game gameId={game._id} />;
+  return (
+    <>
+      <Game
+        gameId={game._id}
+        // when the game ends, we refetch the query to get the final state
+        onGameEnded={() => query.refetch()}
+      />
+      {game.status === "completed" && (
+        <div className="fixed inset-0 bg-black/40 grid place-items-center text-white">
+          <div>GAME ENDED</div>
+          <Link href="/games">Back To Games</Link>
+        </div>
+      )}
+    </>
+  );
 }

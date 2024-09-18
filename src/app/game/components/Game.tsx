@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useGame } from "../hooks/useGame";
 import { Player } from "./Player";
 import { Board, BoardProps } from "./Board";
@@ -9,7 +9,8 @@ import { CoinProps } from "./Coin";
 
 export type GameProps = {
   gameId: string;
-  // state: GameMo
+
+  onGameEnded: () => void;
 };
 
 // TODO client to collect events and release them on by one (for visual effects)
@@ -21,6 +22,13 @@ export const Game: React.FC<GameProps> = (props) => {
     null
   );
   // TODO isLoading with skeleton
+
+  // use effect to check if game ended
+  useEffect(() => {
+    if (state.gameEnded) {
+      props.onGameEnded();
+    }
+  }, [state.gameEnded]);
 
   const myPlayer = state.players.find((player) => player._id === me.id);
 
@@ -64,7 +72,7 @@ export const Game: React.FC<GameProps> = (props) => {
       }}
     >
       <header>
-        <div className="flex items-center">
+        <div className="flex items-center space-x-2">
           {state.players.map((player) => (
             <Player key={player._id} player={player} />
           ))}
@@ -82,45 +90,29 @@ export const Game: React.FC<GameProps> = (props) => {
         {/* Game Actions */}
         {/* <Link href="/games">To Games</Link> */}
 
-        <button
-          className="p-4 border"
-          onClick={() => {
-            // get a random position on the board (that is still empty)
-            for (let colIdx = 0; colIdx < state.board.length; colIdx++) {
-              const col = state.board[colIdx];
-              for (let rowIdx = 0; rowIdx < col.length; rowIdx++) {
-                if (col[rowIdx] === null) {
-                  // get a random coin from player
-                  const coin =
-                    myPlayer?.coins[
-                      Math.floor(Math.random() * myPlayer.coins.length)
-                    ];
-
-                  action({
-                    type: "drop-coin",
-                    coinId: coin?.id ?? -1,
-                    column: colIdx,
-                    row: rowIdx,
-                  });
-                  return;
-                }
-              }
+        {myPlayer?.nonMovedPasses || myPlayer?.didFold ? (
+          <button
+            className="p-4 border"
+            onClick={() =>
+              action({
+                type: "fold",
+              })
             }
-          }}
-        >
-          Set Random number
-        </button>
-
-        <button
-          className="p-4 border"
-          onClick={() =>
-            action({
-              type: "pass-turn",
-            })
-          }
-        >
-          Pass Turn
-        </button>
+          >
+            FOLD
+          </button>
+        ) : (
+          <button
+            className="p-4 border"
+            onClick={() =>
+              action({
+                type: "pass-turn",
+              })
+            }
+          >
+            Pass Turn
+          </button>
+        )}
       </footer>
     </DndContext>
   );
