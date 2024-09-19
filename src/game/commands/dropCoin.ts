@@ -57,8 +57,6 @@ export const dropCoin: CommandHandler<"drop-coin"> = async (
   payload,
   context
 ) => {
-  console.log("dropCoin", { state, payload, context });
-
   // get the player
   const player = state.state.players.find((p) => p._id === payload.playerId);
   if (!player) {

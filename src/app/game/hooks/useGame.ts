@@ -126,13 +126,14 @@ export function useGame(gameId: string) {
         //   processQueue();
         // }
       } else {
+        // show error on board if wrong operation? or some kind of "!=" effect
         // TODO show errors differently (sonner?)
-        alert(data.error);
+        console.error(data.error);
       }
     },
     onError: (error) => {
       // TODO show errors differently (sonner?)
-      alert(error.message);
+      console.error(error);
     },
   });
 
