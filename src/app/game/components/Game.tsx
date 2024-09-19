@@ -88,7 +88,11 @@ export const Game: React.FC<GameProps> = (props) => {
       </header>
       <main className="w-full h-full p-2 grid grid-cols-[1fr] grid-rows-[1fr] place-items-center max-h-full overflow-hidden">
         {/* Coins and Board */}
-        <Board board={state.board} onDropCoin={handleDropCoin} />
+        <Board
+          board={state.board}
+          dropTargets={state.dropTargets}
+          onDropCoin={handleDropCoin}
+        />
       </main>
       <footer>
         {/* Game Actions */}

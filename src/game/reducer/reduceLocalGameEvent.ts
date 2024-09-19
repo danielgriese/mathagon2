@@ -1,7 +1,9 @@
-import { produce } from "immer";
+import { produce, WritableDraft } from "immer";
 import { GameEvent } from "../commands";
-import { GameStateLocal } from "../types";
+import { FieldPosition, GameStateLocal } from "../types";
 import { reduceGameEvent } from "./reduceGameEvent";
+import { getAvailableNeighborFieldPositions } from "../utils/getNeighborFields";
+import { getNumericNeighborPairs } from "../utils/getNumericNeighborPairs";
 
 export function createLocalGameEventReducer() {
   //(myUserId: string) {
@@ -19,7 +21,36 @@ export function createLocalGameEventReducer() {
           draft.gameEnded = true;
           break;
         }
+
+        // TODO mark new board coins
+
+        // TODO mark my new coins
+
+        // mark drop targets on creation
+        case "game-started": {
+          // copy the board state as drop targets (all false initially)
+          draft.dropTargets = draft.board.map((col) => col.map(() => false));
+
+          // get all initial current number fields
+          const numberFields = draft.board.flatMap((col, colIndex) =>
+            col
+              .map((type, rowIndex) => {
+                return typeof type === "number"
+                  ? ([colIndex, rowIndex] as FieldPosition)
+                  : undefined;
+              })
+              .filter((s) => s !== undefined)
+          );
+
+          return numberFields.reduce(_reduceNeighborDropTargets, draft);
+        }
+
+        // mark drop targets on coin drop
+        case "coin-dropped": {
+          return _reduceNeighborDropTargets(draft, [event.column, event.row]);
+        }
       }
+
       return draft;
     });
   }
@@ -27,69 +58,27 @@ export function createLocalGameEventReducer() {
   return reduceAppGameEvent;
 }
 
-//   console.log("reduce local event", event);
+function _reduceNeighborDropTargets(
+  state: WritableDraft<GameStateLocal>,
+  position: FieldPosition
+): WritableDraft<GameStateLocal> {
+  // get potential available drop targtes next to our position
+  const available = getAvailableNeighborFieldPositions(
+    state.board,
+    position[0],
+    position[1]
+  );
 
-//   // ok we got that, based on the event, we can reduce further stuff along using local app logic
-//   switch (event.type) {
-//     // TODO mark new new coins
+  state.dropTargets = available.reduce((targets, pos) => {
+    // check if this field is a valid drop target by checking if we have a neighbor pairs
+    const isDropTarget =
+      getNumericNeighborPairs(state.board, pos[0], pos[1]).length > 0;
 
-//     // TODO mark my new coins
+    // update the drop target state
+    targets[pos[0]][pos[1]] = isDropTarget;
 
-//     // mark drop targets on creation
-//     case "game_created": {
-//       // copy the board state as drop targets (all false initially)
-//       state = update(state, {
-//         dropTargets: { $set: state.board.map((col) => col.map((_) => false)) },
-//       });
+    return targets;
+  }, state.dropTargets);
 
-//       const numberFields = state.board.flatMap((col, colIndex) =>
-//         col
-//           .map((type, rowIndex) => {
-//             return typeof type === "number"
-//               ? ([colIndex, rowIndex] as FieldPosition)
-//               : undefined;
-//           })
-//           .filter(filterNulls)
-//       );
-
-//       return numberFields.reduce(_updateNeighborDropTargets, state);
-//     }
-
-//     // mark drop targets on coin drop
-//     case "player_coin_dropped": {
-//       return _updateNeighborDropTargets(state, [event.column, event.row]);
-//     }
-
-//     default:
-//       return state;
-//   }
-
-// function _updateNeighborDropTargets(
-//   state: GameAppState,
-//   position: FieldPosition
-// ): GameAppState {
-//   // get potential available drop targtes next to our position
-//   const available = getAvailableNeighborFieldPositions(
-//     state.board,
-//     position[0],
-//     position[1]
-//   );
-
-//   // for each of these positions, we got to check if they are a valid drop target
-//   return update(state, {
-//     dropTargets: {
-//       $apply: (value) =>
-//         available.reduce((targets, pos) => {
-//           // check if this field is a valid drop target by checking if we have a neighbor pairs
-//           const isDropTarget =
-//             getNumericNeighborPairs(state.board, pos[0], pos[1]).length > 0;
-
-//           return update(targets, {
-//             [pos[0]]: {
-//               [pos[1]]: { $set: isDropTarget },
-//             },
-//           });
-//         }, value),
-//     },
-//   });
-// }
+  return state;
+}

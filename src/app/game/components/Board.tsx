@@ -5,6 +5,7 @@ import { HEXAGON_HEIGHT, HEXAGON_WIDTH } from "./Hexagon";
 
 export type BoardProps = {
   board: GameStateLocal["board"];
+  dropTargets: GameStateLocal["dropTargets"];
 
   onDropCoin: (column: number, row: number, coinId: number) => void;
 };
@@ -28,7 +29,7 @@ export const Board: React.FC<BoardProps> = (props) => {
                 colIdx={colIndex}
                 rowIdx={rowIndex}
                 // this comes from state/store pre-calculated
-                // isDropTarget={props.dropTargets[colIndex][rowIndex]}
+                isDropTarget={props.dropTargets[colIndex][rowIndex]}
               />
             );
           })

@@ -15,7 +15,8 @@ export type GameState = {
 export type GameStateLocal = GameState & {
   gameEnded: boolean;
 
-  // dropTargets: boolean[][];
+  dropTargets: boolean[][];
+
   // TODO others, like marking which fields are new
 };
 

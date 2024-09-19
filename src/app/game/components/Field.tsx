@@ -10,6 +10,7 @@ export type FieldProps = {
   colIdx: number;
 
   type: FieldType;
+  isDropTarget: boolean;
 };
 
 export const Field: React.FC<FieldProps> = (props) => {
@@ -29,9 +30,7 @@ export const DropField: React.FC<
     setNodeRef: (element: HTMLElement | null) => void;
   }
 > = React.memo(function DropField(props) {
-  const { rowIdx, colIdx, type, isOver, setNodeRef } = props;
-
-  const isDropTarget = true; // TODO from props
+  const { rowIdx, colIdx, type, isDropTarget, isOver, setNodeRef } = props;
 
   return (
     <Hexagon
@@ -50,7 +49,7 @@ export const DropField: React.FC<
             : "fill-red-600"
           : type !== null || isDropTarget
           ? "fill-slate-300"
-          : "fill-slate-200"
+          : "fill-slate-100"
       )}
     >
       {typeof type === "number" && (

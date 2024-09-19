@@ -52,7 +52,7 @@ export function useGame(gameId: string) {
     // additional local state
     gameEnded: false,
 
-    // dropTargets: [],
+    dropTargets: [],
   } satisfies GameStateLocal);
 
   // dispatch any new events in delayed manner
