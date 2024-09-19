@@ -31,8 +31,6 @@ export const DropField: React.FC<
 > = React.memo(function DropField(props) {
   const { rowIdx, colIdx, type, isOver, setNodeRef } = props;
 
-  console.log("render field", rowIdx, colIdx, type);
-
   const isDropTarget = true; // TODO from props
 
   return (
