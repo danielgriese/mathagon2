@@ -36,13 +36,13 @@ export const Coin: React.FC<CoinProps> = (props) => {
       <Hexagon
         className={cn(
           props.className,
-          "fill-white stroke-black stroke-[4px] max-h-16  mx-auto",
+          "fill-slate-400 text-white stroke-none max-h-16  mx-auto",
           isDragging ? "opacity-60" : "opacity-100"
         )}
       >
         <text
-          className="pointer-events-none leading-none"
-          fontSize="72px"
+          className="pointer-events-none leading-none font-bold"
+          fontSize="24px"
           x="51%"
           y="52%"
           dominantBaseline="middle"

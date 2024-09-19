@@ -3,7 +3,7 @@ import { GameState, PlayerState } from "../types";
 import { produce, WritableDraft } from "immer";
 
 export function reduceGameEvent(state: GameState, event: GameEvent): GameState {
-  console.log("reduceGameEvent", state, event);
+  console.log("reduceGameEvent", event);
 
   return produce(state, (draft) => {
     switch (event.type) {

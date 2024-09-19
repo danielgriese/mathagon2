@@ -43,20 +43,20 @@ export const DropField: React.FC<
       width={HEXAGON_WIDTH}
       height={HEXAGON_HEIGHT}
       className={clsx(
-        "pointer-events-auto transition-colors duration-[2000ms] ease-out stroke-black stroke-[4px]",
+        "pointer-events-auto transition-colors duration-[2000ms] ease-out stroke-none",
         isOver
           ? isDropTarget
             ? "fill-green-600"
             : "fill-red-600"
           : type !== null || isDropTarget
-          ? "fill-white"
+          ? "fill-slate-300"
           : "fill-slate-200"
       )}
     >
       {typeof type === "number" && (
         <text
-          className="pointer-events-none"
-          fontSize="72px"
+          className="pointer-events-none font-semibold"
+          fontSize="24px"
           x="51%"
           y="52%"
           dominantBaseline="middle"
