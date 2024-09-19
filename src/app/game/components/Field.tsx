@@ -13,14 +13,25 @@ export type FieldProps = {
 };
 
 export const Field: React.FC<FieldProps> = (props) => {
-  const { rowIdx, colIdx, type } = props;
-
-  console.log("render field", rowIdx, colIdx);
+  const { rowIdx, colIdx } = props;
 
   const { isOver, setNodeRef } = useDroppable({
     id: `${rowIdx}-${colIdx}`,
     data: { rowIdx, colIdx },
   });
+
+  return <DropField {...props} isOver={isOver} setNodeRef={setNodeRef} />;
+};
+
+export const DropField: React.FC<
+  FieldProps & {
+    isOver: boolean;
+    setNodeRef: (element: HTMLElement | null) => void;
+  }
+> = React.memo(function DropField(props) {
+  const { rowIdx, colIdx, type, isOver, setNodeRef } = props;
+
+  console.log("render field", rowIdx, colIdx, type);
 
   const isDropTarget = true; // TODO from props
 
@@ -60,14 +71,5 @@ export const Field: React.FC<FieldProps> = (props) => {
         </text>
       )}
     </Hexagon>
-
-    // <div
-    //   ref={setNodeRef}
-    //   className={`w-8 h-8 grid place-items-center border ${
-    //     isOver ? "border-green-500 border-2" : "border-black"
-    //   }`}
-    // >
-    //   {type}
-    // </div>
   );
-};
+});

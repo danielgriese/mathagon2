@@ -1,12 +1,13 @@
 import { CreateGameSchema } from "@/app/api/game/schema";
 import connectDB from "@/db/connectDB";
+import { GameModel } from "@/db/models/GameModel";
 import { _startGame } from "@/game/commands/_startGame";
 import { IContext } from "@/utils/types";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 
 export async function createGame(
-  { challengeeIds }: z.infer<typeof CreateGameSchema>,
+  { challengeeIds, isSolo }: z.infer<typeof CreateGameSchema>,
   context: IContext
 ) {
   console.log("createGame", { challengeeIds, ...context });
@@ -15,17 +16,32 @@ export async function createGame(
 
   const db = await connectDB();
 
-  // TODO: this is a poor mans way of making match making
-  // in the future we should have a queue and match making logic, especially on ELO rating
-  const challenge = !challengeeIds?.length
-    ? await db.Game.findOne(
-        {
-          status: "pending",
-          "players._id": { $ne: userId },
-        },
-        { projection: { _id: 1, players: 1 } }
-      )
-    : null;
+  let challenge: GameModel | null = null;
+
+  if (isSolo) {
+    // create a solo challenge with no other players
+    const res = await db.Game.insertOne({
+      _id: new ObjectId().toHexString(),
+      status: "pending",
+      players: [],
+      createdAt: new Date(),
+      events: [],
+    });
+
+    challenge = await db.Game.findOne({ _id: res.insertedId });
+  } else {
+    // TODO: this is a poor mans way of making match making
+    // in the future we should have a queue and match making logic, especially on ELO rating
+    challenge = !challengeeIds?.length
+      ? await db.Game.findOne(
+          {
+            status: "pending",
+            "players._id": { $ne: userId },
+          },
+          { projection: { _id: 1, players: 1 } }
+        )
+      : null;
+  }
 
   if (challenge) {
     // TODO actual joining and game start logic

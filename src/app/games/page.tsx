@@ -45,6 +45,7 @@ export default function GamesPage() {
       </div>
 
       <CreateChallengeButton />
+      <CreateChallengeButton isSolo={true} />
 
       <div>
         <Link href="/">Go Home</Link>

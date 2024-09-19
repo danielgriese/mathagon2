@@ -18,4 +18,6 @@ export const CreateGameSchema = z.object({
   challengeeIds: z.array(z.string()).optional(),
 
   // TODO other fields
+  // TODO this will be removed...
+  isSolo: z.boolean().optional(),
 });
