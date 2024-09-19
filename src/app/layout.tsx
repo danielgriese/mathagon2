@@ -3,6 +3,7 @@ import "./globals.css";
 import { QueryProvider } from "./components/QueryProvider";
 import { Suspense } from "react";
 import { UserProvider } from "./components/UserProvider";
+import { BackButtonTrap } from "./components/BackButtonTrap";
 // import localFont from "next/font/local";
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
@@ -27,15 +28,17 @@ export default function RootLayout({
       <body className={`antialiased`}>
         {/* TODO better loading screen */}
         <Suspense fallback="Loading...">
-          <QueryProvider>
-            <UserProvider>
-              <div className="h-screen max-h-screen mx-auto max-w-screen-md">
-                <div className="h-screen grid grid-rows-[auto_1fr_auto]">
-                  {children}
+          <BackButtonTrap>
+            <QueryProvider>
+              <UserProvider>
+                <div className="h-screen max-h-screen mx-auto max-w-screen-md">
+                  <div className="h-screen grid grid-rows-[auto_1fr_auto]">
+                    {children}
+                  </div>
                 </div>
-              </div>
-            </UserProvider>
-          </QueryProvider>
+              </UserProvider>
+            </QueryProvider>
+          </BackButtonTrap>
         </Suspense>
       </body>
     </html>
