@@ -44,7 +44,7 @@ export const DropField: React.FC<
       className={clsx(
         "pointer-events-auto transition-colors duration-[2000ms] ease-out stroke-none",
         isOver
-          ? isDropTarget
+          ? isDropTarget && typeof type !== "number"
             ? "fill-green-600"
             : "fill-red-600"
           : type !== null || isDropTarget
